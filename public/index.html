@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ERP Simple</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <nav class="tabs" aria-label="Módulos">
+        <button class="tab active" data-tab="clientes">Clientes</button>
+        <button class="tab" data-tab="productos">Productos</button>
+        <button class="tab" data-tab="ventas">Venta</button>
+        <button class="tab" data-tab="caja">Caja</button>
+      </nav>
+
+      <section id="clientes" class="panel active">
+        <div class="panel-grid">
+          <form id="client-form" class="form-box">
+            <h1>Clientes</h1>
+            <label>Nombre
+              <input name="name" required placeholder="Nombre o razón social">
+            </label>
+            <div class="row">
+              <label>Documento
+                <select name="documentType">
+                  <option value="dni">DNI</option>
+                  <option value="ruc">RUC</option>
+                </select>
+              </label>
+              <label>Número
+                <input name="documentNumber" required placeholder="DNI o RUC">
+              </label>
+            </div>
+            <label>Teléfono
+              <input name="phone" placeholder="Opcional">
+            </label>
+            <button type="submit">Agregar cliente</button>
+          </form>
+          <div class="table-box">
+            <table>
+              <thead>
+                <tr><th>Cliente</th><th>Documento</th><th>Teléfono</th><th></th></tr>
+              </thead>
+              <tbody id="clients-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="productos" class="panel">
+        <div class="panel-grid">
+          <form id="product-form" class="form-box">
+            <h1>Productos</h1>
+            <label>Producto
+              <input name="name" required placeholder="Nombre">
+            </label>
+            <div class="row">
+              <label>SKU
+                <input name="sku" placeholder="Código">
+              </label>
+              <label>Precio
+                <input name="price" type="number" min="0" step="0.01" required>
+              </label>
+              <label>Stock
+                <input name="stock" type="number" min="0" step="1" value="0">
+              </label>
+            </div>
+            <button type="submit">Agregar producto</button>
+            <p class="muted">Auto-refresh activo cada 5 segundos.</p>
+          </form>
+          <div class="table-box">
+            <div class="table-actions">
+              <strong>Lista de productos</strong>
+              <button id="refresh-products" type="button">Refrescar</button>
+            </div>
+            <table>
+              <thead>
+                <tr><th>Producto</th><th>SKU</th><th>Precio</th><th>Stock</th></tr>
+              </thead>
+              <tbody id="products-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="ventas" class="panel">
+        <div class="sales-layout">
+          <form id="sale-form" class="form-box">
+            <h1>Nueva venta</h1>
+            <label>Cliente
+              <select name="clientId" id="sale-client" required></select>
+            </label>
+            <div class="row">
+              <label>Producto
+                <select id="sale-product"></select>
+              </label>
+              <label>Cantidad
+                <input id="sale-qty" type="number" min="1" value="1">
+              </label>
+              <button id="add-sale-item" type="button">Agregar</button>
+            </div>
+            <div id="sale-items" class="sale-items"></div>
+            <div class="row">
+              <label>Estado
+                <select name="status">
+                  <option value="pagado">Pagado</option>
+                  <option value="credito">Crédito</option>
+                  <option value="deuda">Deuda</option>
+                </select>
+              </label>
+              <label>Pago
+                <select name="paymentMethod">
+                  <option value="efectivo">Efectivo</option>
+                  <option value="yape">Yape</option>
+                  <option value="transferencia">Transferencia</option>
+                </select>
+              </label>
+              <label>Pago inicial
+                <input name="initialPayment" type="number" min="0" step="0.01" value="0">
+              </label>
+            </div>
+            <label>Nota
+              <input name="notes" placeholder="Opcional">
+            </label>
+            <button type="submit">Guardar venta</button>
+          </form>
+          <div class="table-box">
+            <table>
+              <thead>
+                <tr><th>Doc.</th><th>Cliente</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th><th>Pago</th></tr>
+              </thead>
+              <tbody id="sales-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="caja" class="panel">
+        <div class="panel-grid">
+          <form id="payment-form" class="form-box">
+            <h1>Caja</h1>
+            <label>Venta con crédito/deuda
+              <select name="saleId" id="payment-sale"></select>
+            </label>
+            <label>Productos abonados
+              <select name="itemIds" id="payment-items" multiple size="5"></select>
+            </label>
+            <div class="row">
+              <label>Monto
+                <input name="amount" type="number" min="0" step="0.01" required>
+              </label>
+              <label>Método
+                <select name="method">
+                  <option value="efectivo">Efectivo</option>
+                  <option value="yape">Yape</option>
+                  <option value="transferencia">Transferencia</option>
+                </select>
+              </label>
+            </div>
+            <label>Detalle
+              <input name="note" placeholder="Pago parcial, cuota, productos específicos...">
+            </label>
+            <button type="submit">Subir pago a caja</button>
+          </form>
+          <div class="table-box">
+            <div class="cash-summary">
+              <span>Total caja: <strong id="cash-total">S/ 0.00</strong></span>
+              <span>Efectivo: <strong id="cash-efectivo">S/ 0.00</strong></span>
+              <span>Yape: <strong id="cash-yape">S/ 0.00</strong></span>
+              <span>Transferencia: <strong id="cash-transferencia">S/ 0.00</strong></span>
+            </div>
+            <table>
+              <thead>
+                <tr><th>Fecha</th><th>Doc.</th><th>Cliente</th><th>Monto</th><th>Método</th><th>Detalle</th></tr>
+              </thead>
+              <tbody id="payments-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
